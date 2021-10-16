@@ -36,5 +36,8 @@
     <ClInclude Include="global.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="tools.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
