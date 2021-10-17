@@ -2,6 +2,6 @@
 
 ### Libraries used:
 <ul>
-<li>cpp-Httplib: https://github.com/yhirose/cpp-httplib </li>
-<li>Nlohmann-Json: https://github.com/nlohmann/json</li>
+<li>cpp-httplib: https://github.com/yhirose/cpp-httplib </li>
+<li>nlohmann json: https://github.com/nlohmann/json</li>
 </ul>
