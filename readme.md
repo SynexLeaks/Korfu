@@ -1,5 +1,7 @@
 # Backend for Fortnite in C++
 
 ### Libraries used:
-https://github.com/yhirose/cpp-httplib 
-https://github.com/nlohmann/json
+<ul>
+<li>cpp-Httplib: https://github.com/yhirose/cpp-httplib </li>
+<li>Nlohmann-Json: https://github.com/nlohmann/json</li>
+</ul>
