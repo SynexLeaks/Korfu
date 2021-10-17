@@ -5,3 +5,5 @@ using namespace httplib;
 
 #include "lib/json.h"
 using nlohmann::json;
+
+httplib::Server server;
