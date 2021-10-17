@@ -16,6 +16,9 @@
     <Filter Include="lib">
       <UniqueIdentifier>{d3031eb1-b325-46d8-a883-b97ce9404d81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="server">
+      <UniqueIdentifier>{3735fc0f-d6d8-426d-b951-834f17fe9894}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
