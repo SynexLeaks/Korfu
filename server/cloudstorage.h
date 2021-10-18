@@ -7,35 +7,44 @@
 namespace Cloudstorage {
 
 	map <string, string> uniques;
+	typedef pair <string, string> UniquePair;
+
+	string unique(string filename) {
+
+		if (uniques.find(filename) == uniques.end()) { //create unique if it does not exist
+
+			string unqiuename = tools::random_str();
+
+			while(unqiuename == uniques.find(unqiuename)->first)
+				unqiuename = tools::random_str();
+
+			uniques.insert(UniquePair(filename, unqiuename));
+			uniques.insert(UniquePair(unqiuename, filename));
+
+			return unqiuename;
+		}
+
+		return uniques.find(filename)->second;
+	};
 
 	void Init() {
-
-		typedef pair <string, string> UniquePair;
-		uniques.insert(UniquePair("DefaultGame.ini", "4050c8b941ab4389841792dd5d62b9c9"));
-		uniques.insert(UniquePair("DefaultEngine.ini", "f3066a8eb12946ddbe7f081d629f61b1"));
-		uniques.insert(UniquePair("DefaultRuntimeOptions.ini", "6400cbfae00240bbaa58a394fbccfe69"));
-
-		uniques.insert(UniquePair("4050c8b941ab4389841792dd5d62b9c9", "DefaultGame.ini"));
-		uniques.insert(UniquePair("f3066a8eb12946ddbe7f081d629f61b1", "DefaultEngine.ini"));
-		uniques.insert(UniquePair("6400cbfae00240bbaa58a394fbccfe69", "DefaultRuntimeOptions.ini"));
-
 
 		server.Get("/fortnite/api/cloudstorage/system", [](const auto& req, auto& res) {
 
 			json conclusion = json::parse("[]");
-
 			for (const auto& fileentry : filesystem::directory_iterator(workdir + "/cloudstorage/")) {
 
 				string filedata = tools::readFile(fileentry.path().string());
 
 				json entry = json::parse("{}");
 
-				entry["uniqueFilename"] = uniques.find(fileentry.path().filename().string())->second;
-				entry["filename"] = fileentry.path().filename();
+				entry["uniqueFilename"] = unique(fileentry.path().filename().string());
+				entry["filename"] = fileentry.path().filename().string();
 				entry["hash"] = tools::sha1(filedata);
 				entry["hash256"] = tools::sha256(filedata);
 				entry["length"] = filedata.length();
 				entry["contentType"] = "application/octet-stream";
+				entry["uploaded"] = tools::ISO8601Date();
 				entry["storageType"] = "S3";
 				entry["doNotCache"] = false;
 
@@ -47,13 +56,13 @@ namespace Cloudstorage {
 
 		server.Get("/fortnite/api/cloudstorage/system/(.*)", [](const auto& req, auto& res) {
 
-			if (req.matches[1] != "config") {
-				string filename = uniques.find(req.matches[1])->second;
-				res.set_content(tools::readFile(workdir + "/cloudstorage/" + filename), "application/octet-stream");
-			}
+			res.set_content(tools::readFile(workdir + "/cloudstorage/" + uniques.find(req.matches[1])->second), "application/octet-stream");
+			});
+	}
+} 
 
-			if (req.matches[1] == "config") {
-				res.set_content(json::parse(R"(
+/*if (req.matches[1] == "config") {
+res.set_content(json::parse(R"(
 {
 	"lastUpdated": "2021-10-14T19:25:03.908Z",
 	"disableV2": false,
@@ -81,11 +90,4 @@ namespace Cloudstorage {
 			"priority": 20
 		}
 	}
-})").dump(), "application/json"); //parsing to json to format
-			}
-
-			res.set_content("", "application/octet-stream");
-			
-			});
-	}
-}
+})").dump(), "application/json"); //parsing to json to format*/

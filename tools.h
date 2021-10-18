@@ -4,6 +4,9 @@
 
 #include <filesystem>
 
+#include <chrono>
+#include <ctime>
+
 namespace tools {
 
     void getworkdir() {
@@ -12,6 +15,34 @@ namespace tools {
         GetCurrentDirectoryA(MAX_PATH, tworkdir);
 
         workdir = tworkdir;
+    }
+
+    string ISO8601Date() {
+
+        std::time_t ttime = std::time(nullptr);
+        char result[120];
+
+        std::strftime(result, sizeof(result), "%Y-%m-%dT%H:%M:%S", std::localtime(&ttime)); //milli-secs isnt supported so im not adding it lol
+
+        return result;
+    }
+
+    std::string random_str(int length = 32) { //https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
+
+        std::string temp;
+        static const char alphanum[] =
+            "0123456789"
+            "abcdefghijklmnopqrstuvwxyz";
+
+        srand((unsigned)time(NULL) * getpid());
+
+        temp.reserve(length);
+
+        for (int i = 0; i < length; ++i)
+            temp += alphanum[rand() % (sizeof(alphanum) - 1)];
+
+
+        return temp;
     }
 
     string sha256(const string str)
@@ -37,7 +68,7 @@ namespace tools {
         SHA1_Update(&sha, str.c_str(), str.size());
         SHA1_Final(hash, &sha);
         stringstream ss;
-        for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+        for (int i = 0; i < SHA_DIGEST_LENGTH; i++)
         {
             ss << hex << setw(2) << setfill('0') << (int)hash[i];
         }
