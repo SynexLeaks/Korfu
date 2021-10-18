@@ -56,38 +56,13 @@ namespace Cloudstorage {
 
 		server.Get("/fortnite/api/cloudstorage/system/(.*)", [](const auto& req, auto& res) {
 
-			res.set_content(tools::readFile(workdir + "/cloudstorage/" + uniques.find(req.matches[1])->second), "application/octet-stream");
+			string responsedata;
+			if (uniques.find(req.matches[1]) == uniques.end())
+				responsedata = ";not initialized";
+			else 
+				string responsedata = tools::readFile(workdir + "/cloudstorage/" + uniques.find(req.matches[1])->second);
+				
+			res.set_content(responsedata, "application/octet-stream");
 			});
 	}
-} 
-
-/*if (req.matches[1] == "config") {
-res.set_content(json::parse(R"(
-{
-	"lastUpdated": "2021-10-14T19:25:03.908Z",
-	"disableV2": false,
-	"isAuthenticated": false,
-	"enumerateFilesPath": "/api/cloudstorage/system",
-	"transports": {
-		"McpProxyTransport": {
-			"name": "McpProxyTransport",
-			"type": "ProxyStreamingFile",
-			"appName": "fortnite",
-			"isEnabled": false,
-			"isRequired": true,
-			"isPrimary": true,
-			"timeoutSeconds": 30,
-			"priority": 10
-		},
-		"McpSignatoryTransport": {
-			"name": "McpSignatoryTransport",
-			"type": "ProxySignatory",
-			"appName": "fortnite",
-			"isEnabled": false,
-			"isRequired": false,
-			"isPrimary": false,
-			"timeoutSeconds": 30,
-			"priority": 20
-		}
-	}
-})").dump(), "application/json"); //parsing to json to format*/
+}
