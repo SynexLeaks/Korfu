@@ -151,6 +151,9 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="server\api.h" />
     <ClInclude Include="server\cloudstorage.h" />
+    <ClInclude Include="server\content.h" />
+    <ClInclude Include="server\mcp.h" />
+    <ClInclude Include="server\other.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="lib\httplib.h" />
     <ClInclude Include="lib\json.h" />

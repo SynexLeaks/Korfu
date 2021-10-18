@@ -48,5 +48,14 @@
     <ClInclude Include="server\api.h">
       <Filter>server</Filter>
     </ClInclude>
+    <ClInclude Include="server\content.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\other.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\mcp.h">
+      <Filter>server</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
