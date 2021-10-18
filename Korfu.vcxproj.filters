@@ -42,5 +42,11 @@
     <ClInclude Include="tools.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="server\cloudstorage.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\api.h">
+      <Filter>server</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
