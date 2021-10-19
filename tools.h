@@ -22,7 +22,7 @@ namespace tools {
         std::time_t ttime = std::time(nullptr);
         char result[120];
 
-        std::strftime(result, sizeof(result), "%Y-%m-%dT%H:%M:%S", std::localtime(&ttime)); //milli-secs isnt supported so im not adding it lol
+        std::strftime(result, sizeof(result), "%Y-%m-%dT%H:%M:%S.000Z", std::localtime(&ttime)); //milli-secs isnt supported so im not adding it lol
 
         return result;
     }

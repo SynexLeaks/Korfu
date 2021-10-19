@@ -12,10 +12,10 @@ namespace MCP {
 		}
 	}
 
-	void saveconfig(string accountId, string configdata) {
+	void saveconfig(string accountId, json configdata) {
 
 		ofstream print(workdir + "/config/" + accountId + ".json");
-		print << configdata;
+		print << configdata.dump();
 	}
 
 	json loadconfig(string accountId) {
@@ -36,7 +36,6 @@ namespace MCP {
 		return json::parse(sprofiledata);
 	}
 
-
 	string throwerror(string errorCode, string errorMessage, int numericErrorCode, string originatingService, string messageVars, string intent) {
 
 		json res = json::parse("{}");
@@ -50,30 +49,35 @@ namespace MCP {
 		return res;
 	}
 
-	string response(json profilechanges, string profileId, int rvn) {
+	string response(json profilechanges, string profileId, int rvn) { //profileChangesBaseRevision
 
 		json changesarray = json::parse("{}");
 		changesarray["changeType"] = "fullProfileUpdate";
 		changesarray["profile"] = profilechanges;
 
 		json response = json::parse("{}");
-		response["profileRevision"] = rvn + 1;
+		response["profileRevision"] = rvn +1;
 		response["profileChangesBaseRevision"] = rvn;
-		response["profileCommandRevision"] = rvn;
+		response["profileCommandRevision"] = rvn ? rvn - 0 + (1 - 0) : 1;
 		response["serverTime"] = tools::ISO8601Date();
 		response["responseVersion"] = 1;
 
 		response["profileId"] = profileId;
 		response["profileChanges"].push_back(changesarray);
 
-		return response;
+		return response.dump();
 	}
 
 	json profilechanges(string accountId, string profileId) {
 
-		json profiledata = loadprofile(accountId);
-		json configdata = loadconfig(profileId);
+		json profiledata;
+		try {
+			profiledata = loadprofile(profileId);
+		}
+		catch (...) { profiledata = json::parse("{}"); }
+		json configdata = loadconfig(accountId);
 
+		profiledata["_id"] = accountId;
 		profiledata["accountId"] = accountId;
 		profiledata["created"] = tools::ISO8601Date();
 		profiledata["updated"] = tools::ISO8601Date();
@@ -82,147 +86,27 @@ namespace MCP {
 		if(profileId == "athena") {
 
 			profiledata["stats"]["attributes"]["season_num"] = 18;
-			profiledata["stats"]["attributes"]["level"] = configdata["level"];
-			profiledata["items"]["sandbox_loadout"]["attributes"]["banner_icon_template"] = configdata["banner_icon_template"];
-			profiledata["items"]["sandbox_loadout"]["attributes"]["banner_color_template"] = configdata["banner_color_template"];
-			profiledata["items"]["sandbox_loadout"]["attributes"]["locker_slots_data"]["slots"] = configdata["slots"];
+			profiledata["stats"]["attributes"]["level"] = configdata.at("level");
+			profiledata["items"]["sandbox_loadout"]["attributes"]["banner_icon_template"] = configdata.at("banner_icon_template");
+			profiledata["items"]["sandbox_loadout"]["attributes"]["banner_color_template"] = configdata.at("banner_color_template");
+			profiledata["items"]["sandbox_loadout"]["attributes"]["locker_slots_data"]["slots"] = configdata.at("slots");
 
 			for (int i = 0; i < configdata["favorites"].size(); i++) {
 
-				string name = configdata["favorites"].at(i);
-				profiledata["items"][name]["attributes"]["favorite"] = true;
+				string item = configdata["favorites"].at(i);
+				profiledata["items"][item]["attributes"]["favorite"] = true;
 			}
 		}
 
 		if (profileId == "common_core") {
 
-			profiledata["items"]["Currency:MtxPurchased"]["quantity"] = configdata["vbucks"];
+			profiledata["items"]["Currency:MtxPurchased"]["quantity"] = configdata.at("vbucks");
 		}
 
-		return profiledata.dump();
+		return profiledata;
 	}
 
 	void Init() {
-
-		server.Post("/fortnite/api/game/v2/profile/(.*)/client/(.*)", [](const Request& req, Response& res) {
-
-			string account = req.matches[1];
-			string command = req.matches[2];
-
-			InitConfig(account);
-
-			string profile = req.get_param_value("profileId");
-			int rvn = stoi(req.get_param_value("rvn"));
-
-			json profiledata = json::parse(LoadProfile(profile));
-			json config = json::parse(LoadConfig(account));
-			json bodydata = json::parse(req.body.c_str());
-
-			if (!strstr(command.c_str(), "VerifyRealMoneyPurchase"))
-				log("MCP: " + account + ", " + profile + ": " + command);
-
-			switch (str2int(command.c_str())) {
-			case str2int("ClientQuestLogin"):
-			case str2int("QueryProfile"):
-				switch (str2int(profile.c_str())) {
-				case str2int("collections"):
-					res.set_content(createResponse(createUsual(account, profiledata), profile, rvn), "application/json");
-					break;
-				case str2int("athena"):
-				case str2int("profile0"):
-					res.set_content(createResponse(createAthena(account, profiledata, config), profile, rvn), "application/json");
-					break;
-				case str2int("creative"):
-					res.set_content(createResponse(createCreative(account, profiledata), profile, rvn), "application/json");
-					break;
-				case str2int("common_core"):
-					res.set_content(createResponse(createCommonCore(account, profiledata, config), profile, rvn), "application/json");
-					break;
-				case str2int("common_public"):
-					res.set_content(createResponse(createUsual(account, profiledata), profile, rvn), "application/json");
-					break;
-				}
-				break;
-			case str2int("SetMtxPlatform"):
-				res.set_content(createResponse("[{ \"changeType\":  \"statModified\", \"name\" : \"current_mtx_platform\", \"value\" : " + req.body + "}]", profile, rvn), "application/json");
-				break;
-			case str2int("VerifyRealMoneyPurchase"):
-				res.set_content(createResponse(createCommonCore(account, profiledata, config), profile, rvn), "application/json");
-				break;
-
-			case str2int("SetCosmeticLockerBanner"):
-				if (bodydata["bannerIconTemplateName"] != "None")
-					config["BannerIconTemplate"] = bodydata.at("bannerIconTemplateName");
-				if (bodydata["bannerColorTemplateName"] != "None")
-					config["BannerColorTemplate"] = bodydata.at("bannerColorTemplateName");
-
-				SaveConfig(account, config.dump());
-				res.set_content(createResponse(createAthena(account, profiledata, config), profile, rvn), "application/json");
-				break;
-
-			case str2int("SetItemFavoriteStatusBatch"): {
-
-				json favorize = bodydata["itemFavStatus"];
-				json targetarray = bodydata["itemIds"];
-				int index = 0;
-
-				for (auto& unused : targetarray) {
-
-					string fbool = favorize.at(index).dump();
-					json target = targetarray.at(index);
-
-					if (fbool == "true") {
-						config["favorites"].push_back(target);
-					}
-					if (fbool == "false") {
-						config["favorites"].erase(config["favorites"].find(target));
-					}
-
-					index = index + 1;
-				}
-				rvn = rvn + 1;
-				SaveConfig(account, config.dump());
-				res.set_content(createResponse(createAthena(account, profiledata, config), profile, rvn), "application/json");
-				break;
-			}
-
-			case str2int("SetCosmeticLockerSlot"):
-				string category = bodydata.at("category");
-				string target = bodydata.at("itemToSlot");
-				int slot = bodydata["slotIndex"].get<int>();
-
-				if (category != "ItemWrap" && category != "Dance") {
-					config["slots"][category].erase("items");
-					config["slots"][category]["items"].push_back(target);
-					config["slots"][category]["activeVariants"] = json::parse("[{\"variants\": " + bodydata.at("variantUpdates").dump() + "}]");
-				}
-
-				if (category == "Dance") {
-
-					config["slots"][category]["items"].at(slot) = target;
-				}
-
-				else if (category == "ItemWrap") {
-
-					if (slot > -1) {
-						config["slots"][category]["items"].at(slot) = target;
-						config["slots"][category]["activeVariants"].at(slot) = json::parse("[{\"variants\": " + bodydata.at("variantUpdates").dump() + "}]");
-					}
-
-					else {
-						for (slot = 0; slot < 7; slot++) {
-							config["slots"][category]["items"].at(slot) = target;
-							config["slots"][category]["activeVariants"].at(slot) = json::parse("[{\"variants\": " + bodydata.at("variantUpdates").dump() + "}]");
-						}
-					}
-				}
-
-				SaveConfig(account, config.dump());
-				res.set_content(createResponse(createAthena(account, profiledata, config), "athena", rvn), "application/json");
-
-				break;
-			}
-			});
 
 			server.Post("/fortnite/api/game/v2/profile/(.*)/client/(.*)", [](const auto& req, auto& res) {
 
@@ -231,115 +115,75 @@ namespace MCP {
 				int rvn = stoi(req.get_param_value("rvn"));
 				string profileId = req.get_param_value("profileId");
 
-				initconfig(accountId););
+				initconfig(accountId);
 
-				if (command == "ClientQuestLogin" || "ClientQuestLogin") {
+				if (command == "SetCosmeticLockerSlot") {
+					json jreqbody = json::parse(req.body);
+					json configdata = loadconfig(accountId);
 
-					string profileId = req.get_param_value("profileId");
-					if (profileId == "collections")
-						res.set_content(response(profilechanges(accountId, profileId), profileId, rvn), "application/json");
-				}
-
-				switch (str2int(command.c_str())) {
-				case str2int("ClientQuestLogin"):
-				case str2int("QueryProfile"):
-					switch (str2int(profile.c_str())) {
-					case str2int("collections"):
-						
-						break;
-					case str2int("athena"):
-					case str2int("profile0"):
-						res.set_content(createResponse(createAthena(account, profiledata, config), profile, rvn), "application/json");
-						break;
-					case str2int("creative"):
-						res.set_content(createResponse(createCreative(account, profiledata), profile, rvn), "application/json");
-						break;
-					case str2int("common_core"):
-						res.set_content(createResponse(createCommonCore(account, profiledata, config), profile, rvn), "application/json");
-						break;
-					case str2int("common_public"):
-						res.set_content(createResponse(createUsual(account, profiledata), profile, rvn), "application/json");
-						break;
-					}
-					break;
-				case str2int("SetMtxPlatform"):
-					res.set_content(createResponse("[{ \"changeType\":  \"statModified\", \"name\" : \"current_mtx_platform\", \"value\" : " + req.body + "}]", profile, rvn), "application/json");
-					break;
-				case str2int("VerifyRealMoneyPurchase"):
-					res.set_content(createResponse(createCommonCore(account, profiledata, config), profile, rvn), "application/json");
-					break;
-
-				case str2int("SetCosmeticLockerBanner"):
-					if (bodydata["bannerIconTemplateName"] != "None")
-						config["BannerIconTemplate"] = bodydata.at("bannerIconTemplateName");
-					if (bodydata["bannerColorTemplateName"] != "None")
-						config["BannerColorTemplate"] = bodydata.at("bannerColorTemplateName");
-
-					SaveConfig(account, config.dump());
-					res.set_content(createResponse(createAthena(account, profiledata, config), profile, rvn), "application/json");
-					break;
-
-				case str2int("SetItemFavoriteStatusBatch"): {
-
-					json favorize = bodydata["itemFavStatus"];
-					json targetarray = bodydata["itemIds"];
-					int index = 0;
-
-					for (auto& unused : targetarray) {
-
-						string fbool = favorize.at(index).dump();
-						json target = targetarray.at(index);
-
-						if (fbool == "true") {
-							config["favorites"].push_back(target);
-						}
-						if (fbool == "false") {
-							config["favorites"].erase(config["favorites"].find(target));
-						}
-
-						index = index + 1;
-					}
-					rvn = rvn + 1;
-					SaveConfig(account, config.dump());
-					res.set_content(createResponse(createAthena(account, profiledata, config), profile, rvn), "application/json");
-					break;
-				}
-
-				case str2int("SetCosmeticLockerSlot"):
-					string category = bodydata.at("category");
-					string target = bodydata.at("itemToSlot");
-					int slot = bodydata["slotIndex"].get<int>();
-
-					if (category != "ItemWrap" && category != "Dance") {
-						config["slots"][category].erase("items");
-						config["slots"][category]["items"].push_back(target);
-						config["slots"][category]["activeVariants"] = json::parse("[{\"variants\": " + bodydata.at("variantUpdates").dump() + "}]");
-					}
-
+					string category = jreqbody.at("category");
+					string targetitem = jreqbody.at("itemToSlot");
+					
 					if (category == "Dance") {
-
-						config["slots"][category]["items"].at(slot) = target;
+						int targetslot = jreqbody["slotIndex"];
+						configdata["slots"][category]["items"].at(targetslot) = targetitem;
 					}
-
-					else if (category == "ItemWrap") {
-
-						if (slot > -1) {
-							config["slots"][category]["items"].at(slot) = target;
-							config["slots"][category]["activeVariants"].at(slot) = json::parse("[{\"variants\": " + bodydata.at("variantUpdates").dump() + "}]");
-						}
-
-						else {
-							for (slot = 0; slot < 7; slot++) {
-								config["slots"][category]["items"].at(slot) = target;
-								config["slots"][category]["activeVariants"].at(slot) = json::parse("[{\"variants\": " + bodydata.at("variantUpdates").dump() + "}]");
-							}
+					if (category == "ItemWrap") {
+						int targetslot = jreqbody["slotIndex"].get<int>();
+						if (targetslot > -1)
+							configdata["slots"][category]["items"].at(targetslot) = targetitem;
+						else if (targetslot == -1) {
+							for (targetslot = 0; targetslot < 7; targetslot++)
+								configdata["slots"][category]["items"].at(targetslot) = targetitem;
 						}
 					}
+					else if (category != "ItemWrap" && category != "Dance"){
+						configdata["slots"][category]["items"].at(0) = targetitem;
+						configdata["slots"][category]["activeVariants"].at(0)["variants"] = jreqbody.at("variantUpdates");
+					}
 
-					SaveConfig(account, config.dump());
-					res.set_content(createResponse(createAthena(account, profiledata, config), "athena", rvn), "application/json");
+					saveconfig(accountId, configdata);
+				}
 
-					break;
+				if (command == "SetCosmeticLockerBanner") {
+					json jreqbody = json::parse(req.body);
+					json configdata = loadconfig(accountId);
+
+					if (jreqbody["bannerIconTemplateName"] != "None")
+						configdata["banner_icon_template"] = jreqbody.at("bannerIconTemplateName");
+					if (jreqbody["bannerColorTemplateName"] != "None")
+						configdata["banner_color_template"] = jreqbody.at("bannerColorTemplateName");
+
+					saveconfig(accountId, configdata);
+				}
+
+				if (command == "SetItemFavoriteStatusBatch") {
+					json jreqbody = json::parse(req.body);
+					json configdata = loadconfig(accountId);
+
+					json statusboolarray = jreqbody["itemFavStatus"];
+					json targetitemarray = jreqbody["itemIds"];
+
+					for (int targetindex = 0; targetindex < targetitemarray.size(); targetindex++) {
+
+						bool statusbool = statusboolarray.at(targetindex);
+						json targetitem = targetitemarray.at(targetindex);
+
+						if (!statusbool)
+							configdata["favorites"].erase(configdata["favorites"].find(targetitem)); //whzy tf not working????
+						if (statusbool)
+							configdata["favorites"].push_back(targetitem);
+					}
+
+					saveconfig(accountId, configdata);
+				}
+
+				res.set_content(response(profilechanges(accountId, profileId), profileId, rvn), "application/json"); //default profile
+
+				if (command == "SetMtxPlatform") {
+					json data = json::parse(R"([{"changeType": "statModified", "name": "current_mtx_platform", "value": ""}])");
+					data.at(0)["value"] = req.body;
+					res.set_content(response(data, profileId, rvn), "application/json");
 				}
 				});
 	}

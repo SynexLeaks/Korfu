@@ -9,7 +9,7 @@ namespace Cloudstorage {
 	map <string, string> uniques;
 	typedef pair <string, string> UniquePair;
 
-	string unique(string filename) {
+	string unique(string filename) { //dynamic unqiue system
 
 		if (uniques.find(filename) == uniques.end()) { //create unique if it does not exist
 
