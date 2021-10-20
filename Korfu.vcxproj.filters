@@ -57,5 +57,8 @@
     <ClInclude Include="server\mcp.h">
       <Filter>server</Filter>
     </ClInclude>
+    <ClInclude Include="lib\termcolor.h">
+      <Filter>lib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

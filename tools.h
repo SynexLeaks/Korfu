@@ -1,11 +1,19 @@
 #pragma once
 #include "global.h"
+
+#include "lib/termcolor.h"
 #include <openssl/sha.h>
 
 #include <filesystem>
 
 #include <chrono>
 #include <ctime>
+
+#define log(tolog) \
+std::cout << termcolor::cyan << "[Korfu]" << termcolor::yellow << "[" << tools::dateandtime() << "] " << termcolor::reset << tolog << std::endl;
+
+#define error(errmsg) \
+std::cout << termcolor::red << "[Error] " << termcolor::reset << errmsg << ": ";
 
 namespace tools {
 
@@ -17,12 +25,35 @@ namespace tools {
         workdir = tworkdir;
     }
 
+    string throwerror(string errorMessage, int numericErrorCode, string originatingService, string messageVars, string intent = "prod-live", string errorCode = "errors.com.korfu.common") {
+
+        json res = json::parse("{}");
+        res["errorCode"] = errorCode;
+        res["errorMessage"] = errorMessage;
+        res["numericErrorCode"] = numericErrorCode;
+        res["originatingService"] = originatingService;
+        res["messageVars"] = messageVars;
+        res["intent"] = intent;
+
+        return res.dump();
+    }
+
     string ISO8601Date() {
 
         std::time_t ttime = std::time(nullptr);
         char result[120];
 
         std::strftime(result, sizeof(result), "%Y-%m-%dT%H:%M:%S.000Z", std::localtime(&ttime)); //milli-secs isnt supported so im not adding it lol
+
+        return result;
+    }
+
+    string dateandtime() {
+
+        std::time_t ttime = std::time(nullptr);
+        char result[120];
+
+        std::strftime(result, sizeof(result), "%Y-%m-%d %H:%M:%S", std::localtime(&ttime));
 
         return result;
     }

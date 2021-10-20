@@ -36,19 +36,6 @@ namespace MCP {
 		return json::parse(sprofiledata);
 	}
 
-	string throwerror(string errorCode, string errorMessage, int numericErrorCode, string originatingService, string messageVars, string intent) {
-
-		json res = json::parse("{}");
-		res["errorCode"] = errorCode;
-		res["errorMessage"] = errorMessage;
-		res["numericErrorCode"] = numericErrorCode;
-		res["originatingService"] = originatingService;
-		res["messageVars"] = messageVars;
-		res["intent"] = intent;
-
-		return res;
-	}
-
 	string response(json profilechanges, string profileId, int rvn) { //profileChangesBaseRevision
 
 		json changesarray = json::parse("{}");
@@ -166,12 +153,17 @@ namespace MCP {
 
 					for (int targetindex = 0; targetindex < targetitemarray.size(); targetindex++) {
 
-						bool statusbool = statusboolarray.at(targetindex);
-						json targetitem = targetitemarray.at(targetindex);
+						bool statusbool = statusboolarray.at(targetindex).get<bool>();
+						string targetitem = targetitemarray.at(targetindex).get<string>();
 
-						if (!statusbool)
-							configdata["favorites"].erase(configdata["favorites"].find(targetitem)); //whzy tf not working????
-						if (statusbool)
+						if (statusbool == 0) { //ok ill just loop through instead to get the index of it and erase then
+							for (int favoriteindex = 0; favoriteindex < configdata["favorites"].size(); favoriteindex++) {
+								if (configdata["favorites"].at(favoriteindex).get<string>() == targetitem) {
+									configdata["favorites"].erase(favoriteindex);
+								}
+							}
+						}
+						else if (statusbool  == 1 && !configdata["favorites"].contains(targetitem))
 							configdata["favorites"].push_back(targetitem);
 					}
 

@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
+    <ClInclude Include="lib\termcolor.h" />
     <ClInclude Include="server\api.h" />
     <ClInclude Include="server\cloudstorage.h" />
     <ClInclude Include="server\content.h" />

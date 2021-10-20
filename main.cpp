@@ -19,9 +19,25 @@ void main() {
 	Content::Init();
 	Other::Init();
 
-	/*MCP::initconfig("e10c27c21d4c29558b6529f3ad4289e5");
-	ofstream print(workdir + "/response.txt");
-	print << MCP::response(MCP::profilechanges("e10c27c21d4c29558b6529f3ad4289e5", "common_core"), "common_core", 3);*/
+	server.set_error_handler([](const auto& req, auto& res) {
+
+		error(res.status);
+		switch (res.status) {
+		case 500:
+			res.set_content(tools::throwerror("Internal Server Error", res.status, "fortnite | backend", "Could not resolve " + req.path), "application/json");
+			break;
+		case 404:
+			res.set_content(tools::throwerror("Not found", res.status, "fortnite | backend", "Route (" + req.path + ") does not exist"), "application/json");
+			break;
+		default:
+			res.set_content(tools::throwerror("Unknown Error", res.status, "fortnite | backend", "UNKNOWN", "UNKNOWN"), "application/json"); //idfk
+		}
+		});
+
+	server.set_logger([](const auto& req, auto& res) {
+
+		log(req.path);
+		});
 
 	server.listen("0.0.0.0", 80);
 }
