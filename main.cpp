@@ -36,7 +36,8 @@ void main() {
 
 	server.set_logger([](const auto& req, auto& res) {
 
-		log(req.path);
+		if (!strstr(req.path.c_str(), "VerifyRealMoneyPurchase"))
+			log(req.path);
 		});
 
 	server.listen("0.0.0.0", 80);
