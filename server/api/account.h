@@ -1,7 +1,7 @@
 #pragma once
 #include "token.h"
 
-namespace api {
+namespace api { //stub
 
 	void Init() {
 
