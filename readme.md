@@ -14,7 +14,7 @@
 
 ### How to compile:
 <ul>
-For Windows: Compile in x64 release mode (can only be used as hybrid server). I didn't add a lot of routes yet, so it will take a while until this can be used for full private servers.
+<li>For Windows: Compile in x64 release mode (can only be used as hybrid server). I didn't add a lot of routes yet, so it will take a while until this can be used for full private servers. </li>
 </ul>
 
 ### Libraries used:
