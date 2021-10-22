@@ -12,11 +12,6 @@
 <li>StormFN: https://github.com/StormFNDev/StormFN-Backend </li>
 </ul>
 
-### How to compile:
-<ul>
-<li>For Windows: Compile in x64 release mode (can only be used as hybrid server). I didn't add a lot of routes yet, so it will take a while until this can be used for full private servers. </li>
-</ul>
-
 ### Libraries used:
 <ul>
 <li>cpp-httplib: https://github.com/yhirose/cpp-httplib </li>
