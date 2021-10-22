@@ -46,7 +46,7 @@ namespace MCP {
 		response["profileRevision"] = rvn +1;
 		response["profileChangesBaseRevision"] = rvn;
 		response["profileCommandRevision"] = rvn ? rvn - 0 + (1 - 0) : 1;
-		response["serverTime"] = tools::ISO8601Date();
+		response["serverTime"] = tools::ISO8601date();
 		response["responseVersion"] = 1;
 
 		response["profileId"] = profileId;
@@ -66,8 +66,8 @@ namespace MCP {
 
 		profiledata["_id"] = accountId;
 		profiledata["accountId"] = accountId;
-		profiledata["created"] = tools::ISO8601Date();
-		profiledata["updated"] = tools::ISO8601Date();
+		profiledata["created"] = tools::ISO8601date();
+		profiledata["updated"] = tools::ISO8601date();
 		profiledata["profileId"] = profileId;
 
 		if(profileId == "athena") {
@@ -95,88 +95,88 @@ namespace MCP {
 
 	void Init() {
 
-			server.Post("/fortnite/api/game/v2/profile/(.*)/client/(.*)", [](const auto& req, auto& res) {
+		server.Post("/fortnite/api/game/v2/profile/(.*)/client/(.*)", [](const auto& req, auto& res) {
 
-				string accountId = req.matches[1];
-				string command = req.matches[2];
-				int rvn = stoi(req.get_param_value("rvn"));
-				string profileId = req.get_param_value("profileId");
+			string accountId = req.matches[1];
+			string command = req.matches[2];
+			int rvn = stoi(req.get_param_value("rvn"));
+			string profileId = req.get_param_value("profileId");
 
-				initconfig(accountId);
+			initconfig(accountId);
 
-				if (command == "SetCosmeticLockerSlot") {
-					json jreqbody = json::parse(req.body);
-					json configdata = loadconfig(accountId);
+			if (command == "SetCosmeticLockerSlot") {
+				json jreqbody = json::parse(req.body);
+				json configdata = loadconfig(accountId);
 
-					string category = jreqbody.at("category");
-					string targetitem = jreqbody.at("itemToSlot");
-					
-					if (category == "Dance") {
-						int targetslot = jreqbody["slotIndex"];
+				string category = jreqbody.at("category");
+				string targetitem = jreqbody.at("itemToSlot");
+
+				if (category == "Dance") {
+					int targetslot = jreqbody["slotIndex"];
+					configdata["slots"][category]["items"].at(targetslot) = targetitem;
+				}
+				if (category == "ItemWrap") {
+					int targetslot = jreqbody["slotIndex"].get<int>();
+					if (targetslot > -1)
 						configdata["slots"][category]["items"].at(targetslot) = targetitem;
-					}
-					if (category == "ItemWrap") {
-						int targetslot = jreqbody["slotIndex"].get<int>();
-						if (targetslot > -1)
+					else if (targetslot == -1) {
+						for (targetslot = 0; targetslot < 7; targetslot++)
 							configdata["slots"][category]["items"].at(targetslot) = targetitem;
-						else if (targetslot == -1) {
-							for (targetslot = 0; targetslot < 7; targetslot++)
-								configdata["slots"][category]["items"].at(targetslot) = targetitem;
-						}
 					}
-					else if (category != "ItemWrap" && category != "Dance"){
-						configdata["slots"][category]["items"].at(0) = targetitem;
-						configdata["slots"][category]["activeVariants"].at(0)["variants"] = jreqbody.at("variantUpdates");
-					}
-
-					saveconfig(accountId, configdata);
+				}
+				else if (category != "ItemWrap" && category != "Dance") {
+					configdata["slots"][category]["items"].at(0) = targetitem;
+					configdata["slots"][category]["activeVariants"].at(0)["variants"] = jreqbody.at("variantUpdates");
 				}
 
-				if (command == "SetCosmeticLockerBanner") {
-					json jreqbody = json::parse(req.body);
-					json configdata = loadconfig(accountId);
+				saveconfig(accountId, configdata);
+			}
 
-					if (jreqbody["bannerIconTemplateName"] != "None")
-						configdata["banner_icon_template"] = jreqbody.at("bannerIconTemplateName");
-					if (jreqbody["bannerColorTemplateName"] != "None")
-						configdata["banner_color_template"] = jreqbody.at("bannerColorTemplateName");
+			if (command == "SetCosmeticLockerBanner") {
+				json jreqbody = json::parse(req.body);
+				json configdata = loadconfig(accountId);
 
-					saveconfig(accountId, configdata);
-				}
+				if (jreqbody["bannerIconTemplateName"] != "None")
+					configdata["banner_icon_template"] = jreqbody.at("bannerIconTemplateName");
+				if (jreqbody["bannerColorTemplateName"] != "None")
+					configdata["banner_color_template"] = jreqbody.at("bannerColorTemplateName");
 
-				if (command == "SetItemFavoriteStatusBatch") {
-					json jreqbody = json::parse(req.body);
-					json configdata = loadconfig(accountId);
+				saveconfig(accountId, configdata);
+			}
 
-					json statusboolarray = jreqbody["itemFavStatus"];
-					json targetitemarray = jreqbody["itemIds"];
+			if (command == "SetItemFavoriteStatusBatch") {
+				json jreqbody = json::parse(req.body);
+				json configdata = loadconfig(accountId);
 
-					for (int targetindex = 0; targetindex < targetitemarray.size(); targetindex++) {
+				json statusboolarray = jreqbody["itemFavStatus"];
+				json targetitemarray = jreqbody["itemIds"];
 
-						bool statusbool = statusboolarray.at(targetindex).get<bool>();
-						string targetitem = targetitemarray.at(targetindex).get<string>();
+				for (int targetindex = 0; targetindex < targetitemarray.size(); targetindex++) {
 
-						if (statusbool == 0) { //ok ill just loop through instead to get the index of it and erase then
-							for (int favoriteindex = 0; favoriteindex < configdata["favorites"].size(); favoriteindex++) {
-								if (configdata["favorites"].at(favoriteindex).get<string>() == targetitem) {
-									configdata["favorites"].erase(favoriteindex);
-								}
+					bool statusbool = statusboolarray.at(targetindex).get<bool>();
+					string targetitem = targetitemarray.at(targetindex).get<string>();
+
+					if (statusbool == 0) { //ok ill just loop through instead to get the index of it and erase then
+						for (int favoriteindex = 0; favoriteindex < configdata["favorites"].size(); favoriteindex++) {
+							if (configdata["favorites"].at(favoriteindex).get<string>() == targetitem) {
+								configdata["favorites"].erase(favoriteindex);
 							}
 						}
-						else if (statusbool  == 1 && !configdata["favorites"].contains(targetitem))
-							configdata["favorites"].push_back(targetitem);
 					}
-
-					saveconfig(accountId, configdata);
+					else if (statusbool == 1 && !configdata["favorites"].contains(targetitem))
+						configdata["favorites"].push_back(targetitem);
 				}
 
-				res.set_content(response(profilechanges(accountId, profileId), profileId, rvn), "application/json"); //default profile
+				saveconfig(accountId, configdata);
+			}
 
-				if (command == "SetMtxPlatform") {
-					json data = json::parse(R"([{"changeType": "statModified", "name": "current_mtx_platform", "value": ""}])");
-					data.at(0)["value"] = req.body;
-					res.set_content(response(data, profileId, rvn), "application/json");
-				}
-				});
+			res.set_content(response(profilechanges(accountId, profileId), profileId, rvn), "application/json"); //default profile
+
+			if (command == "SetMtxPlatform") {
+				json data = json::parse(R"([{"changeType": "statModified", "name": "current_mtx_platform", "value": ""}])");
+				data.at(0)["value"] = req.body;
+				res.set_content(response(data, profileId, rvn), "application/json");
+			}
+			});
 	}
 }

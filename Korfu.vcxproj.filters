@@ -19,6 +19,9 @@
     <Filter Include="server">
       <UniqueIdentifier>{3735fc0f-d6d8-426d-b951-834f17fe9894}</UniqueIdentifier>
     </Filter>
+    <Filter Include="api">
+      <UniqueIdentifier>{14de5016-7e4f-4948-9a44-c4420a3e015d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,9 +48,6 @@
     <ClInclude Include="server\cloudstorage.h">
       <Filter>server</Filter>
     </ClInclude>
-    <ClInclude Include="server\api.h">
-      <Filter>server</Filter>
-    </ClInclude>
     <ClInclude Include="server\content.h">
       <Filter>server</Filter>
     </ClInclude>
@@ -59,6 +59,12 @@
     </ClInclude>
     <ClInclude Include="lib\termcolor.h">
       <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="server\api\token.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="server\api\account.h">
+      <Filter>api</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

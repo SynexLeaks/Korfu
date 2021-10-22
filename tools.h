@@ -38,7 +38,7 @@ namespace tools {
         return res.dump();
     }
 
-    string ISO8601Date() {
+    string ISO8601date() {
 
         std::time_t ttime = std::time(nullptr);
         char result[120];

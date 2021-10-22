@@ -9,7 +9,7 @@ namespace Cloudstorage {
 	map <string, string> uniques;
 	typedef pair <string, string> UniquePair;
 
-	string unique(string filename) { //dynamic unqiue system
+	string unique(string filename) { //dynamicly assing a unique name
 
 		if (uniques.find(filename) == uniques.end()) { //create unique if it does not exist
 
@@ -31,10 +31,10 @@ namespace Cloudstorage {
 
 		server.Get("/fortnite/api/cloudstorage/system", [](const auto& req, auto& res) {
 
-			json conclusion = json::parse("[]");
+			json summary = json::parse("[]");
 			for (const auto& fileentry : filesystem::directory_iterator(workdir + "/cloudstorage/")) {
 
-				string filedata = tools::readFile(fileentry.path().string());
+				const string filedata = tools::readFile(fileentry.path().string());
 
 				json entry = json::parse("{}");
 
@@ -44,20 +44,20 @@ namespace Cloudstorage {
 				entry["hash256"] = tools::sha256(filedata);
 				entry["length"] = filedata.length();
 				entry["contentType"] = "application/octet-stream";
-				entry["uploaded"] = tools::ISO8601Date();
+				entry["uploaded"] = tools::ISO8601date();
 				entry["storageType"] = "S3";
 				entry["doNotCache"] = false;
 
-				conclusion.push_back(entry);
+				summary.push_back(entry);
 			}
 
-			res.set_content(conclusion.dump(), "application/json");
+			res.set_content(summary.dump(), "application/json");
 			});
 
 		server.Get("/fortnite/api/cloudstorage/system/(.*)", [](const auto& req, auto& res) {
 
 			string responsedata;
-			if (uniques.find(req.matches[1]) == uniques.end())
+			if (uniques.find(req.matches[1]) == uniques.end()) //if not found or summary wasnt used yet
 				responsedata = ";not initialized";
 			else 
 				string responsedata = tools::readFile(workdir + "/cloudstorage/" + uniques.find(req.matches[1])->second);

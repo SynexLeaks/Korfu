@@ -29,11 +29,6 @@ namespace Other {
 			res.set_content(R"({"bans":[],"warnings":[]})", "application/json");
 			});
 
-		server.Get("/waitingroom/api/waitingroom", [](const auto& req, auto& res) {
-
-			res.status = 204;
-			});
-
 		server.Get("/fortnite/api/v2/versioncheck/(.*)", [](const auto& req, auto& res) {
 
 			res.set_content(R"({"type":"NO_UPDATE"})", "application/json");
