@@ -142,7 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LICENSE" />
+    <None Include="LICENSE">
+      <FileType>CppCode</FileType>
+    </None>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +153,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
+    <ClInclude Include="lib\jwt.hpp" />
+    <ClInclude Include="lib\jwt\algorithm.hpp" />
+    <ClInclude Include="lib\jwt\assertions.hpp" />
+    <ClInclude Include="lib\jwt\base64.hpp" />
+    <ClInclude Include="lib\jwt\config.hpp" />
+    <ClInclude Include="lib\jwt\error_codes.hpp" />
+    <ClInclude Include="lib\jwt\exceptions.hpp" />
+    <ClInclude Include="lib\jwt\impl\algorithm.ipp" />
+    <ClInclude Include="lib\jwt\impl\error_codes.ipp" />
+    <ClInclude Include="lib\jwt\impl\jwt.ipp" />
+    <ClInclude Include="lib\jwt\impl\stack_alloc.ipp" />
+    <ClInclude Include="lib\jwt\impl\string_view.ipp" />
+    <ClInclude Include="lib\jwt\parameters.hpp" />
+    <ClInclude Include="lib\jwt\short_string.hpp" />
+    <ClInclude Include="lib\jwt\stack_alloc.hpp" />
+    <ClInclude Include="lib\jwt\string_view.hpp" />
     <ClInclude Include="lib\termcolor.h" />
     <ClInclude Include="server\api\account.h" />
     <ClInclude Include="server\api\token.h" />

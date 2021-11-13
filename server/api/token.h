@@ -2,6 +2,11 @@
 #include "../../global.h"
 #include "../../tools.h"
 
-namespace token { //stub
+#include "../../lib/jwt.hpp"
 
+namespace token {
+
+	string createToken() {
+
+	}
 }

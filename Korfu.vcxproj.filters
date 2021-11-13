@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Ressourcendateien">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="lib">
       <UniqueIdentifier>{d3031eb1-b325-46d8-a883-b97ce9404d81}</UniqueIdentifier>
     </Filter>
@@ -22,16 +18,22 @@
     <Filter Include="server\api">
       <UniqueIdentifier>{14de5016-7e4f-4948-9a44-c4420a3e015d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\jwt">
+      <UniqueIdentifier>{380a85ef-ef82-4e6f-ac80-4b81ce697439}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\jwt\impl">
+      <UniqueIdentifier>{9a6c531c-d1a0-4ad8-a401-36aa3ae046dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />
     <None Include="packages.config" />
+    <None Include="LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\httplib.h">
@@ -66,6 +68,54 @@
     </ClInclude>
     <ClInclude Include="server\api\account.h">
       <Filter>server\api</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\algorithm.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\assertions.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\base64.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\config.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\error_codes.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\exceptions.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\parameters.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\short_string.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\stack_alloc.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\string_view.hpp">
+      <Filter>lib\jwt</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt.hpp">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\impl\stack_alloc.ipp">
+      <Filter>lib\jwt\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\impl\string_view.ipp">
+      <Filter>lib\jwt\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\impl\algorithm.ipp">
+      <Filter>lib\jwt\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\impl\error_codes.ipp">
+      <Filter>lib\jwt\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\jwt\impl\jwt.ipp">
+      <Filter>lib\jwt\impl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
