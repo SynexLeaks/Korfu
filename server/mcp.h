@@ -2,29 +2,33 @@
 #include "../global.h"
 #include "../tools.h"
 
+#include <future>
+
+map <string, json> profiles;
+typedef pair <string, json> UniquePair;
+
 namespace MCP {
-
-	void initconfig(string accountId) {
-
-		if (!filesystem::exists(workdir + "/config/" + accountId + ".json")) {
-
-			filesystem::copy(workdir + "/profile/config.json", workdir + "/config/" + accountId + ".json");
-		}
-	}
 
 	void saveconfig(string accountId, json configdata) {
 
+#if NO_STORAGE
+		profiles.find(accountId)->second = configdata;
+#else
 		ofstream print(workdir + "/config/" + accountId + ".json");
 		print << configdata.dump();
+#endif
 	}
 
 	json loadconfig(string accountId) {
 
+#if NO_STORAGE
+		return profiles.find(accountId)->second;
+#else
 		ifstream fconfigdata(workdir + "/config/" + accountId + ".json");
 		string sconfigdata((std::istreambuf_iterator<char>(fconfigdata)),
 			std::istreambuf_iterator<char>());
-
 		return json::parse(sconfigdata);
+#endif
 	}
 
 	json loadprofile(string profileId) {
@@ -36,7 +40,71 @@ namespace MCP {
 		return json::parse(sprofiledata);
 	}
 
-	string response(json profilechanges, string profileId, int rvn) { //profileChangesBaseRevision
+	void initconfig(string accountId) {
+
+#if NO_STORAGE
+		if (profiles.find(accountId)->first != accountId)
+			profiles.insert(UniquePair(accountId, loadprofile("config")));
+#else 
+		if (!filesystem::exists(workdir + "/config/" + accountId + ".json")) {
+
+			filesystem::copy(workdir + "/profile/config.json", workdir + "/config/" + accountId + ".json");
+		}
+#endif
+	}
+
+	void update(void) {
+
+		auto athena = []() {
+
+			static string rawdata;
+			httplib::Client client("https://fortnite-api.com"); 
+
+			auto apipull = client.Get("/v2/cosmetics/br/", 
+				[&](const char* data, size_t data_length) {
+					rawdata.append(data, data_length);
+					if (rawdata.back() != (char)"}")
+						return true;
+					return false;
+				});
+
+			static json athena = loadprofile("athena");
+			json sandbox_loadout = loadprofile("athena")["items"].at("sandbox_loadout");
+			json itemarray = json::parse(rawdata);
+			
+			for (int i = 0; i < itemarray.size(); i++) {
+
+				string itemname = itemarray.at(i)["type"]["backendValue"] + ":" + itemarray.at(i)["id"];
+				string itemvariants = itemarray.at(i)["variants"];
+
+				athena["items"][itemname]["templateId"] = itemname;
+				athena["items"][itemname]["attributes"]["max_level_bonus"] = 0;
+				athena["items"][itemname]["attributes"]["level"] = 1;
+				athena["items"][itemname]["attributes"]["item_seen"] = true;
+				athena["items"][itemname]["attributes"]["rnd_sel_cnt"] = 0;
+				athena["items"][itemname]["attributes"]["xp"] = 0;
+				athena["items"][itemname]["attributes"]["favorite"] = false;
+
+				athena["items"][itemname]["attributes"]["variants"].push_back(itemvariants);
+
+				athena["items"][itemname]["quantity"] = 1;
+			}
+
+			ofstream print(workdir + "/profile/athena.json");
+			print << athena.dump();
+
+			log("Updated athena");
+		};
+
+		while (1) {
+
+			athena();
+
+			Sleep(432000000); //wait 5 days
+		}
+	}
+
+	string response(json profilechanges, string profileId, int rvn) {
 
 		json changesarray = json::parse("{}");
 		changesarray["changeType"] = "fullProfileUpdate";
@@ -58,7 +126,7 @@ namespace MCP {
 	json profilechanges(string accountId, string profileId) {
 
 		json profiledata;
-		try {
+		try { //in case profile doesnt exist
 			profiledata = loadprofile(profileId);
 		}
 		catch (...) { profiledata = json::parse("{}"); }
@@ -153,8 +221,8 @@ namespace MCP {
 
 				for (int targetindex = 0; targetindex < targetitemarray.size(); targetindex++) {
 
-					bool statusbool = statusboolarray.at(targetindex).get<bool>();
-					string targetitem = targetitemarray.at(targetindex).get<string>();
+					bool statusbool = statusboolarray.at(targetindex);
+					string targetitem = targetitemarray.at(targetindex);
 
 					if (statusbool == 0) { //ok ill just loop through instead to get the index of it and erase then
 						for (int favoriteindex = 0; favoriteindex < configdata["favorites"].size(); favoriteindex++) {

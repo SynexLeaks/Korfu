@@ -12,13 +12,21 @@ void main() {
 
 	tools::getworkdir();
 	filesystem::create_directory(workdir + "/config");
-#ifdef _PRIV
-	api::Init();
-#endif
+
+#if HYBRID_ONLY
 	Cloudstorage::Init();
 	Content::Init();
 	Other::Init();
 	MCP::Init();
+#else
+	Cloudstorage::Init();
+	Content::Init();
+	Other::Init();
+	MCP::Init();
+	api::Init();
+#endif
+
+	//CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MCP::update, 0, 0, 0);
 
 	server.set_error_handler([](const auto& req, auto& res) {
 

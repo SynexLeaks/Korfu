@@ -19,7 +19,7 @@
     <Filter Include="server">
       <UniqueIdentifier>{3735fc0f-d6d8-426d-b951-834f17fe9894}</UniqueIdentifier>
     </Filter>
-    <Filter Include="api">
+    <Filter Include="server\api">
       <UniqueIdentifier>{14de5016-7e4f-4948-9a44-c4420a3e015d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -27,6 +27,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.md" />
@@ -61,10 +62,10 @@
       <Filter>lib</Filter>
     </ClInclude>
     <ClInclude Include="server\api\token.h">
-      <Filter>api</Filter>
+      <Filter>server\api</Filter>
     </ClInclude>
     <ClInclude Include="server\api\account.h">
-      <Filter>api</Filter>
+      <Filter>server\api</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
