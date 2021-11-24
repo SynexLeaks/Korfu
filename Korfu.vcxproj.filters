@@ -18,12 +18,6 @@
     <Filter Include="server\api">
       <UniqueIdentifier>{14de5016-7e4f-4948-9a44-c4420a3e015d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\jwt">
-      <UniqueIdentifier>{380a85ef-ef82-4e6f-ac80-4b81ce697439}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\jwt\impl">
-      <UniqueIdentifier>{9a6c531c-d1a0-4ad8-a401-36aa3ae046dc}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -65,54 +59,6 @@
     </ClInclude>
     <ClInclude Include="server\api\api.h">
       <Filter>server\api</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\algorithm.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\assertions.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\base64.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\config.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\error_codes.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\exceptions.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\parameters.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\short_string.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\stack_alloc.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\string_view.hpp">
-      <Filter>lib\jwt</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt.hpp">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\impl\stack_alloc.ipp">
-      <Filter>lib\jwt\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\impl\string_view.ipp">
-      <Filter>lib\jwt\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\impl\algorithm.ipp">
-      <Filter>lib\jwt\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\impl\error_codes.ipp">
-      <Filter>lib\jwt\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\jwt\impl\jwt.ipp">
-      <Filter>lib\jwt\impl</Filter>
     </ClInclude>
     <ClInclude Include="server\api\tokensys.h">
       <Filter>server\api</Filter>
