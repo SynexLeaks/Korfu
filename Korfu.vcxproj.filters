@@ -63,10 +63,7 @@
     <ClInclude Include="lib\termcolor.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="server\api\token.h">
-      <Filter>server\api</Filter>
-    </ClInclude>
-    <ClInclude Include="server\api\account.h">
+    <ClInclude Include="server\api\api.h">
       <Filter>server\api</Filter>
     </ClInclude>
     <ClInclude Include="lib\jwt\algorithm.hpp">
@@ -116,6 +113,9 @@
     </ClInclude>
     <ClInclude Include="lib\jwt\impl\jwt.ipp">
       <Filter>lib\jwt\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="server\api\tokensys.h">
+      <Filter>server\api</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

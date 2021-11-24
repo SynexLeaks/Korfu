@@ -26,12 +26,29 @@ namespace Other {
 
 		server.Get("/socialban/api/public/v1/(.*)", [](const auto& req, auto& res) {
 
-			res.set_content(R"({"bans":[],"warnings":[]})", "application/json");
+			res.set_content(json::parse(R"({"bans":[],"warnings":[]})").dump(), "application/json");
 			});
 
 		server.Get("/fortnite/api/v2/versioncheck/(.*)", [](const auto& req, auto& res) {
 
-			res.set_content(R"({"type":"NO_UPDATE"})", "application/json");
+			res.set_content(json::parse(R"({"type":"NO_UPDATE"})").dump(), "application/json");
 			});
+
+		server.Get("/fortnite/api/storefront/v2/catalog", [](const auto& req, auto& res) {
+
+			res.set_content(json::parse(R"({})").dump(), "application/json"); //item shop
+			});
+
+		server.Get("/fortnite/api/storefront/v2/keychain", [](const auto& req, auto& res) { //from neonite
+
+			json response = json::parse("{}");
+
+			httplib::Client client("https://api.nitestats.com");
+			auto rawcontent = client.Get("/v1/epic/keychain");
+			response = json::parse(rawcontent->body);
+
+			res.set_content(response.dump(), "application/json");
+			});
+
 	}
 }

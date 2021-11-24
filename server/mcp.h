@@ -4,12 +4,12 @@
 
 #include <future>
 
-map <string, json> profiles;
+static map <string, json> profiles;
 typedef pair <string, json> UniquePair;
 
-namespace MCP {
+class MCP {
 
-	void saveconfig(string accountId, json configdata) {
+	static void saveconfig(string accountId, json configdata) {
 
 #if NO_STORAGE
 		profiles.find(accountId)->second = configdata;
@@ -19,28 +19,21 @@ namespace MCP {
 #endif
 	}
 
-	json loadconfig(string accountId) {
+	static json loadconfig(string accountId) {
 
 #if NO_STORAGE
 		return profiles.find(accountId)->second;
 #else
-		ifstream fconfigdata(workdir + "/config/" + accountId + ".json");
-		string sconfigdata((std::istreambuf_iterator<char>(fconfigdata)),
-			std::istreambuf_iterator<char>());
-		return json::parse(sconfigdata);
+		return json::parse(tools::readFile(workdir + "/config/" + accountId + ".json"));
 #endif
 	}
 
-	json loadprofile(string profileId) {
+	static json loadprofile(string profileId) {
 
-		ifstream fprofiledata(workdir + "/profile/" + profileId + ".json");
-		string sprofiledata((std::istreambuf_iterator<char>(fprofiledata)),
-			std::istreambuf_iterator<char>());
-
-		return json::parse(sprofiledata);
+		return  json::parse(tools::readFile(workdir + "/profile/" + profileId + ".json"));
 	}
 
-	void initconfig(string accountId) {
+	static void initconfig(string accountId) {
 
 #if NO_STORAGE
 		if (profiles.find(accountId)->first != accountId)
@@ -53,22 +46,27 @@ namespace MCP {
 #endif
 	}
 
-	void update(void) {
+	//body too big, havent found a fix yst, so not working, dont use
+	static void update(void) {
 
 		auto athena = []() {
 
-			static string rawdata;
+			string rawdata = (char*)malloc(280000);
 			httplib::Client client("https://fortnite-api.com"); 
 
 			auto apipull = client.Get("/v2/cosmetics/br/", 
 				[&](const char* data, size_t data_length) {
-					rawdata.append(data, data_length);
-					if (rawdata.back() != (char)"}")
-						return true;
-					return false;
+					rawdata.append(data);
+					if (rawdata.ends_with("}]}")) {
+						return false;
+					}
+					Sleep(0.5);
+					return true;
 				});
 
-			static json athena = loadprofile("athena");
+			std::cout << rawdata;
+
+			/*static json athena = loadprofile("athena");
 			json sandbox_loadout = loadprofile("athena")["items"].at("sandbox_loadout");
 			json itemarray = json::parse(rawdata);
 			
@@ -91,7 +89,7 @@ namespace MCP {
 			}
 
 			ofstream print(workdir + "/profile/athena.json");
-			print << athena.dump();
+			print << athena.dump();*/
 
 			log("Updated athena");
 		};
@@ -104,7 +102,7 @@ namespace MCP {
 		}
 	}
 
-	string response(json profilechanges, string profileId, int rvn) {
+	static string response(json profilechanges, string profileId, int rvn) {
 
 		json changesarray = json::parse("{}");
 		changesarray["changeType"] = "fullProfileUpdate";
@@ -123,7 +121,7 @@ namespace MCP {
 		return response.dump();
 	}
 
-	json profilechanges(string accountId, string profileId) {
+	static json profilechanges(string accountId, string profileId) {
 
 		json profiledata;
 		try { //in case profile doesnt exist
@@ -161,7 +159,8 @@ namespace MCP {
 		return profiledata;
 	}
 
-	void Init() {
+public:
+	static void Init() {
 
 		server.Post("/fortnite/api/game/v2/profile/(.*)/client/(.*)", [](const auto& req, auto& res) {
 
@@ -247,4 +246,4 @@ namespace MCP {
 			}
 			});
 	}
-}
+};

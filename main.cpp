@@ -1,14 +1,16 @@
 #include "global.h"
 #include <Windows.h>
 
-#include "server/api/account.h"
+#include "server/api/api.h"
 #include "server/cloudstorage.h"
 #include "server/content.h"
 #include "server/mcp.h"
 
 #include "server/other.h"
 
-void main() {
+#include "server/api/tokensys.h"
+
+int main(void) {
 
 	tools::getworkdir();
 	filesystem::create_directory(workdir + "/config");
@@ -27,10 +29,11 @@ void main() {
 #endif
 
 	//CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MCP::update, 0, 0, 0);
+	//MCP::update();
 
 	server.set_error_handler([](const auto& req, auto& res) {
 
-		error(res.status);
+		//error(res.status);
 		switch (res.status) {
 		case 500:
 			res.set_content(tools::throwerror("Internal Server Error", res.status, "fortnite | backend", "Could not resolve " + req.path), "application/json");

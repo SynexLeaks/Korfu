@@ -4,22 +4,22 @@
 
 #include <filesystem>
 
-namespace Cloudstorage {
+static map <string, string> uniques;
+typedef pair <string, string> cUniquePair;
 
-	map <string, string> uniques;
-	typedef pair <string, string> UniquePair;
+class Cloudstorage {
 
-	string unique(string filename) { //dynamicly assing a unique name
+	static string unique(string filename) { //dynamicly assing a unique name
 
 		if (uniques.find(filename) == uniques.end()) { //create unique if it does not exist
 
 			string unqiuename = tools::random_str();
 
-			while(unqiuename == uniques.find(unqiuename)->first)
+			while (unqiuename == uniques.find(unqiuename)->first)
 				unqiuename = tools::random_str();
 
-			uniques.insert(UniquePair(filename, unqiuename));
-			uniques.insert(UniquePair(unqiuename, filename));
+			uniques.insert(cUniquePair(filename, unqiuename));
+			uniques.insert(cUniquePair(unqiuename, filename));
 
 			return unqiuename;
 		}
@@ -27,11 +27,12 @@ namespace Cloudstorage {
 		return uniques.find(filename)->second;
 	};
 
-	void Init() {
+public:
+	static void Init() {
 
 		server.Get("/fortnite/api/cloudstorage/system", [](const auto& req, auto& res) {
 
-			json summary = json::parse("[]");
+			json sum = json::parse("[]");
 			for (const auto& fileentry : filesystem::directory_iterator(workdir + "/cloudstorage/")) {
 
 				const string filedata = tools::readFile(fileentry.path().string());
@@ -46,12 +47,12 @@ namespace Cloudstorage {
 				entry["contentType"] = "application/octet-stream";
 				entry["uploaded"] = tools::ISO8601date();
 				entry["storageType"] = "S3";
-				entry["doNotCache"] = false;
+				entry["doNotCache"] = true;
 
-				summary.push_back(entry);
+				sum.push_back(entry);
 			}
 
-			res.set_content(summary.dump(), "application/json");
+			res.set_content(sum.dump(), "application/json");
 			});
 
 		server.Get("/fortnite/api/cloudstorage/system/(.*)", [](const auto& req, auto& res) {
@@ -59,10 +60,10 @@ namespace Cloudstorage {
 			string responsedata;
 			if (uniques.find(req.matches[1]) == uniques.end()) //if not found or summary wasnt used yet
 				responsedata = ";not initialized";
-			else 
+			else
 				string responsedata = tools::readFile(workdir + "/cloudstorage/" + uniques.find(req.matches[1])->second);
-				
+
 			res.set_content(responsedata, "application/octet-stream");
 			});
 	}
-}
+};
